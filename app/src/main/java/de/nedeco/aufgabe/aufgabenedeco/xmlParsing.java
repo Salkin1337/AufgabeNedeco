@@ -21,13 +21,15 @@ import java.util.List;
 public class xmlParsing extends AsyncTask<String, Void, List> {
 
     InputStream inputStream;
-    String title = null;
-    String destcription = null;
-    String link = null;
-    String date = null;
-    String content = null;
-    String pic =null;
+    String title;
+    String description;
+    String link;
+    String date;
+    String content;
+    String pic;
+    String category;
     List entries;
+
 
 
     private static final String ns = null;
@@ -35,72 +37,75 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
+        entries = new ArrayList();
+
+
 
         try {
             URL url = new URL(urls[0]);
             inputStream = url.openConnection().getInputStream();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(inputStream, null);
             parser.nextTag();
             return readFeed(parser);
-
-
-
-
         } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+            //If the inputStream for some reason can't connect to the given url.
+            // Title in entries is set to IOException.
+            // So it is in MainActivity clear what happend her.
+            entries.add(new Entry("","","","","","","","IOException"));
         }catch (IllegalArgumentException e){
             e.printStackTrace();
-            return null;
+            //If the inputStream for some reason can't connect to the given url.
+            // Title in entries is set to IllegalArgumentException.
+            // So it is in MainActivity clear what happend her.
+            entries.add(new Entry("","","","","","","","IllegalArgumentException"));
         }
-        return new ArrayList();
+        return entries;
     }
+
     private List readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
-        entries = new ArrayList();
         parser.require(XmlPullParser.START_TAG, ns, "rss");
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            // Starts by looking for the entry tag
+        parser.nextTag();
+
+        String name = parser.getName();
+        // Starts by looking for the channel and than for the item tag
+        try {
             if (name.equals("channel")) {
-                readEntry(parser);
+                parser.require(XmlPullParser.START_TAG, ns, "channel");
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() != XmlPullParser.START_TAG) {
+                        continue;
+                    }
+                    name = parser.getName();
+                    if (name.equals("item")) {
+                        entries.add(readItem(parser));
+                    } else {
+                        skip(parser);
+                    }
+                }
+                inputStream.close();
             } else {
                 skip(parser);
             }
+        }catch (NullPointerException e) {
+            e.printStackTrace();
+            //If the content of the given site is for some reason .
+            // Title in entries is set to NullPointerException.
+            // So it is in MainActivity clear what happend her.
+            entries.add(new Entry("","","","","","","","NullPointerException"));
         }
         return entries;
     }
 
 
-    // Parses the contents of an entry. If it encounters a title, summary, or link tag, hands them off
+    // Parses the contents of an item in channel. If it encounters a title,link,.etc tag, hands them off
     // to their respective "read" methods for processing. Otherwise, skips the tag.
-    private Entry readEntry(XmlPullParser parser) throws XmlPullParserException, IOException {
-        parser.require(XmlPullParser.START_TAG, ns, "channel");
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            if (name.equals("item")) {
-                entries.add(readItem(parser));
-            } else {
-                skip(parser);
-            }
-        }
-        return new Entry(title, destcription, link, date, content, pic);
-    }
     private Entry readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "item");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -108,25 +113,35 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
                 continue;
             }
             String name = parser.getName();
-            if (name.equals("title")) {
-                title = readContent(parser,"title");
-            } else if (name.equals("link")) {
-                link = readContent(parser,"link");
-            } else if (name.equals("description")) {
-                destcription = readContent(parser,"description");
-            }else if (name.equals("pubDate")){
-                date = readContent(parser,"pubDate");
-            }else if (name.equals("content:encoded")){
-                content = readContent(parser,"content:encoded");
-            }else if (name.equals("enclosure")){
-                pic = readPic(parser,"enclosure");
-            } else {
-                skip(parser);
+            switch(name) {
+                case "title":
+                    title = readContent(parser,"title");
+                    break;
+                case "link":
+                    link = readContent(parser,"link");
+                    break;
+                case "description":
+                    description = readContent(parser,"description");
+                    break;
+                case "pubDate":
+                    date = readContent(parser,"pubDate");
+                    break;
+                case "content:encoded":
+                    content = readContent(parser,"content:encoded");
+                    break;
+                case "enclosure":
+                    pic = readPic(parser, "enclosure");
+                    break;
+                case "category":
+                    category = readContent(parser,"category");
+                    break;
+                default:
+                    skip(parser);
             }
-
         }
-        return new Entry(title, destcription, link, date, content, pic);
+        return new Entry(title, description, link, date, content, pic, category,null);
     }
+
     // Processes tags in Item.
     private String readContent(XmlPullParser parser,String category) throws IOException, XmlPullParserException {
         parser.require(XmlPullParser.START_TAG, ns, category);
@@ -134,9 +149,9 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         parser.require(XmlPullParser.END_TAG, ns, category);
         return text;
     }
-
+    //Extracts the link of the picture in item
     private String readPic(XmlPullParser parser,String category) throws IOException, XmlPullParserException {
-        String pic = "";
+        String pic = null;
         parser.require(XmlPullParser.START_TAG, ns, category);
         String tag = parser.getName();
         String lenType = parser.getAttributeValue(null, "length");
@@ -151,7 +166,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
     }
 
 
-        // extract text values.
+    //Extract text values.
     private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
         String result = "";
         if (parser.next() == XmlPullParser.TEXT) {
@@ -160,6 +175,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         }
         return result;
     }
+
 
     private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG) {
@@ -177,6 +193,5 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
             }
         }
     }
-
 }
 

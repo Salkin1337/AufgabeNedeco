@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Roetgen Event</string>
+    <string name="emptyXmlList">No available Events.</string>
+    <string name="reload">Reloaded</string>
+    <string name="internetConnectionError">No Internet connectoin. Please try again later.</string>
+    <string name="search">Search</string>
+    <string name="back">Back</string>
+    <string name="none">Remove Filter</string>
 </resources>
