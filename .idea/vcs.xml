@@ -2,7 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/NedecoAufgabe" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/app" vcs="Git" />
-    <mapping directory="C:\Users\User\AndroidStudioProjects\AufgabeNedeco\" vcs="Git" />
   </component>
 </project>
