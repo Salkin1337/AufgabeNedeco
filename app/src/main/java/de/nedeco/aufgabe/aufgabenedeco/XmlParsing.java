@@ -56,13 +56,13 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         } catch (IOException e) {
             e.printStackTrace();
             //If the inputStream for some reason can't connect to the given url.
-            // Title in entries is set to IOException.
+            // Error in entries is set to IOException.
             // So it is in MainActivity clear what happend her.
             entries.add(new Entry("","","","","","","","IOException"));
         }catch (IllegalArgumentException e){
             e.printStackTrace();
             //If the inputStream for some reason can't connect to the given url.
-            // Title in entries is set to IllegalArgumentException.
+            // Error in entries is set to IllegalArgumentException.
             // So it is in MainActivity clear what happend her.
             entries.add(new Entry("","","","","","","","IllegalArgumentException"));
         }
@@ -96,7 +96,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         }catch (NullPointerException e) {
             e.printStackTrace();
             //If the content of the given site is for some reason .
-            // Title in entries is set to NullPointerException.
+            // Error in entries is set to NullPointerException.
             // So it is in MainActivity clear what happend her.
             entries.add(new Entry("","","","","","","","NullPointerException"));
         }
