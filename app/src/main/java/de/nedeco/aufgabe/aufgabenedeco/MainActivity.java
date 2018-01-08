@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         try {
-            entries = new xmlParsing().execute("https://www.datefix.de/js/kalender/rss/5095").get();
+            entries = new XmlParsing().execute("https://www.datefix.de/js/kalender/rss/5095").get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
