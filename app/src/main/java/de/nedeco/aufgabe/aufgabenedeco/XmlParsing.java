@@ -33,7 +33,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
 
 
     private static final String ns = null;
-    protected List doInBackground(String... urls) {
+    protected List doInBackground(String... xmlUrl) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
@@ -42,7 +42,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
 
 
         try {
-            URL url = new URL(urls[0]);
+            URL url = new URL(xmlUrl[0]);
             inputStream = url.openConnection().getInputStream();
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
