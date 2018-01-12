@@ -9,7 +9,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.List;
  * Created by User on 09.12.2017.
  */
 
-public class xmlParsing extends AsyncTask<String, Void, List> {
+public class XmlParsing extends AsyncTask<String, Void, List> {
 
     InputStream inputStream;
     String title;
@@ -30,15 +29,14 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
     String category;
     List entries;
 
-
-
     private static final String ns = null;
+
+    // Parses the given Url to entries List
     protected List doInBackground(String... xmlUrl) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 
         StrictMode.setThreadPolicy(policy);
         entries = new ArrayList();
-
 
 
         try {
@@ -49,22 +47,17 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
             parser.setInput(inputStream, null);
             parser.nextTag();
             return readFeed(parser);
-        } catch (XmlPullParserException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-            //If the inputStream for some reason can't connect to the given url.
-            // Error in entries is set to IOException.
-            // So it is in MainActivity clear what happend her.
-            entries.add(new Entry("","","","","","","","IOException"));
-        }catch (IllegalArgumentException e){
-            e.printStackTrace();
-            //If the inputStream for some reason can't connect to the given url.
-            // Error in entries is set to IllegalArgumentException.
-            // So it is in MainActivity clear what happend her.
-            entries.add(new Entry("","","","","","","","IllegalArgumentException"));
+            //If the given Link for some Reason is not an RSSFeed, XmlPullParserException will be added to Error in entries
+            //If the inputStream for some reason can't connect to the given url, IOException will be added to Error in entries.
+            //If the Url is not valid for some reason, MalformedURLException will be added to Error in entries.
+            entries.add(new Entry("","","","","","","",e.getClass().getName()));
+            try {
+                inputStream.close();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
         }
         return entries;
     }
@@ -89,23 +82,23 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
                         skip(parser);
                     }
                 }
-                inputStream.close();
             } else {
                 skip(parser);
             }
         }catch (NullPointerException e) {
             e.printStackTrace();
+            inputStream.close();
             //If the content of the given site is for some reason .
-            // Error in entries is set to NullPointerException.
+            // error in entries is set to NullPointerException.
             // So it is in MainActivity clear what happend her.
-            entries.add(new Entry("","","","","","","","NullPointerException"));
+            entries.add(new Entry("","","","","","","",e.getCause().toString()));
         }
+        inputStream.close();
         return entries;
     }
 
-
     // Parses the contents of an item in channel. If it encounters a title,link,.etc tag, hands them off
-    // to their respective "read" methods for processing. Otherwise, skips the tag.
+    // to their respective methods for processing. Otherwise, skips the tag.
     private Entry readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "item");
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -139,7 +132,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
                     skip(parser);
             }
         }
-        return new Entry(title, description, link, date, content, pic, category,null);
+        return new Entry(title, description, link, date, content, pic, category,"");
     }
 
     // Processes tags in Item.
@@ -149,7 +142,8 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         parser.require(XmlPullParser.END_TAG, ns, category);
         return text;
     }
-    //Extracts the link of the picture in item
+
+    // Gets the Link to the Picture in the XMLParser
     private String readPic(XmlPullParser parser,String category) throws IOException, XmlPullParserException {
         String pic = null;
         parser.require(XmlPullParser.START_TAG, ns, category);
@@ -176,7 +170,7 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         return result;
     }
 
-
+    //Skips the current Tag
     private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG) {
             throw new IllegalStateException();
@@ -194,4 +188,3 @@ public class xmlParsing extends AsyncTask<String, Void, List> {
         }
     }
 }
-
