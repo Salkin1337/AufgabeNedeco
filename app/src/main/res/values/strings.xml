@@ -1,9 +1,17 @@
 <resources>
     <string name="app_name">Roetgen Event</string>
-    <string name="emptyXmlList">No available Events.</string>
     <string name="reload">Reloaded</string>
-    <string name="internetConnectionError">No Internet connectoin. Please try again later.</string>
+
+    <string name="emptyXmlList">No events available.</string>
+    <string name="linkHasNoRSSFeed">The given link is not an RSSFeed</string>
+    <string name="internetConnectionError">No Internet connection. Please try again later.</string>
+    <string name="linkIsNotValid">The given link is not Valid</string>
+
+    <string name="setLinkOption">Set her manual a link to the Roetgen Event RSSFeed. Leave blank to use the standard link</string>
     <string name="search">Search</string>
     <string name="back">Back</string>
     <string name="none">Remove Filter</string>
+    <string name="option">Options</string>
+
+    <string name="RSSLink">https://www.datefix.de/js/kalender/rss/5095</string>
 </resources>
