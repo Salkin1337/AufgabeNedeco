@@ -24,7 +24,7 @@ import java.net.URL;
  * Created by User on 10.12.2017.
  */
 
-public class appointmentInfo extends AppCompatActivity {
+public class AppointmentInfoActivity extends AppCompatActivity {
 
     String link;
     String date;
@@ -89,13 +89,14 @@ public class appointmentInfo extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         new MenuInflater(getApplication()).inflate(R.menu.main_menu,menu);
         menu.findItem(R.id.search).setVisible(false);
+        menu.findItem(R.id.option).setVisible(false);
         menu.findItem(R.id.back).setVisible(true).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getTitle().equals(getResources().getString(R.string.back))){
+        if(item.getItemId() == R.id.back){
             startActivity(new Intent(this,MainActivity.class));
         }
         return true;
@@ -105,9 +106,10 @@ public class appointmentInfo extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.pop_up_picture,null);
+        View view = inflater.inflate(R.layout.pop_up,null);
         builder.setView(view);
         ImageView popUpPic = view.findViewById(R.id.popUpPic);
+        popUpPic.setVisibility(View.VISIBLE);
         popUpPic.setImageDrawable(picDrawable);
         builder.setNeutralButton(getResources().getString(R.string.back), new DialogInterface.OnClickListener() {
             @Override
