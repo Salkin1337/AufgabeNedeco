@@ -7,22 +7,22 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/item"
+        android:id="@+id/titleItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="7sp"
         android:minHeight="45dp"
-        android:text=""
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="1dp"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="1dp" />
 
     <TextView
-        android:id="@+id/subItem"
+        android:id="@+id/catagoryItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/item"
-        tools:layout_editor_absoluteX="162dp"
-        tools:layout_editor_absoluteY="46dp" />
+        android:layout_below="@+id/titleItem"
+        android:layout_marginStart="7sp"
+        tools:layout_editor_absoluteY="1dp" />
 
 </RelativeLayout>
