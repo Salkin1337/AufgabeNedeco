@@ -7,9 +7,11 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,10 +22,10 @@ import java.util.List;
 public class XmlParsing extends AsyncTask<String, Void, List> {
 
     InputStream inputStream;
-    String title;
+    String[] titleDate;
     String description;
     String link;
-    String date;
+    String pubDate;
     String content;
     String pic;
     String category;
@@ -42,6 +44,16 @@ public class XmlParsing extends AsyncTask<String, Void, List> {
         try {
             URL url = new URL(xmlUrl[0]);
             inputStream = url.openConnection().getInputStream();
+
+            // Pre Parses URL to replace invalid Characters like "&"
+            byte[] buffer = new byte[1024];
+            StringBuilder rssString = new StringBuilder();
+            while(inputStream.read(buffer) > 0) {
+                rssString.append(new String(buffer, StandardCharsets.UTF_8));
+            }
+
+            inputStream = new ByteArrayInputStream(rssString.toString().replaceAll(" & ", " &amp; ").getBytes());
+
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
             parser.setInput(inputStream, null);
@@ -52,7 +64,7 @@ public class XmlParsing extends AsyncTask<String, Void, List> {
             //If the given Link for some Reason is not an RSSFeed, XmlPullParserException will be added to Error in entries
             //If the inputStream for some reason can't connect to the given url, IOException will be added to Error in entries.
             //If the Url is not valid for some reason, MalformedURLException will be added to Error in entries.
-            entries.add(new Entry("","","","","","","",e.getClass().getName()));
+            entries.add(new Entry("","" ,"","","","","","",e.getClass().getName()));
             try {
                 inputStream.close();
             } catch (Exception e1) {
@@ -91,7 +103,7 @@ public class XmlParsing extends AsyncTask<String, Void, List> {
             //If the content of the given site is for some reason .
             // error in entries is set to NullPointerException.
             // So it is in MainActivity clear what happend her.
-            entries.add(new Entry("","","","","","","",e.getCause().toString()));
+            entries.add(new Entry("","" ,"","","","","","",e.getCause().toString()));
         }
         inputStream.close();
         return entries;
@@ -101,38 +113,42 @@ public class XmlParsing extends AsyncTask<String, Void, List> {
     // to their respective methods for processing. Otherwise, skips the tag.
     private Entry readItem(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "item");
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
+        try {
+            while (parser.next() != XmlPullParser.END_TAG) {
+                if (parser.getEventType() != XmlPullParser.START_TAG) {
+                    continue;
+                }
+                String name = parser.getName();
+                switch (name) {
+                    case "title":
+                        titleDate = readContent(parser, "title").split("Uhr:");
+                        break;
+                    case "link":
+                        link = readContent(parser, "link");
+                        break;
+                    case "description":
+                        description = readContent(parser, "description");
+                        break;
+                    case "pubDate":
+                        pubDate = readContent(parser, "pubDate");
+                        break;
+                    case "content:encoded":
+                        content = readContent(parser, "content:encoded");
+                        break;
+                    case "enclosure":
+                        pic = readPic(parser, "enclosure");
+                        break;
+                    case "category":
+                        category = readContent(parser, "category");
+                        break;
+                    default:
+                        skip(parser);
+                }
             }
-            String name = parser.getName();
-            switch(name) {
-                case "title":
-                    title = readContent(parser,"title");
-                    break;
-                case "link":
-                    link = readContent(parser,"link");
-                    break;
-                case "description":
-                    description = readContent(parser,"description");
-                    break;
-                case "pubDate":
-                    date = readContent(parser,"pubDate");
-                    break;
-                case "content:encoded":
-                    content = readContent(parser,"content:encoded");
-                    break;
-                case "enclosure":
-                    pic = readPic(parser, "enclosure");
-                    break;
-                case "category":
-                    category = readContent(parser,"category");
-                    break;
-                default:
-                    skip(parser);
-            }
+        }catch (Exception e) {
+            e.printStackTrace();
         }
-        return new Entry(title, description, link, date, content, pic, category,"");
+        return new Entry(titleDate[1],titleDate[0]+"Uhr", description, link, pubDate, content, pic, category,"");
     }
 
     // Processes tags in Item.
@@ -144,18 +160,18 @@ public class XmlParsing extends AsyncTask<String, Void, List> {
     }
 
     // Gets the Link to the Picture in the XMLParser
-    private String readPic(XmlPullParser parser,String category) throws IOException, XmlPullParserException {
+    private String readPic(XmlPullParser parser,String category) throws IOException,XmlPullParserException {
         String pic = null;
         parser.require(XmlPullParser.START_TAG, ns, category);
         String tag = parser.getName();
-        String lenType = parser.getAttributeValue(null, "length");
         String imType = parser.getAttributeValue(null, "type");
         if (tag.equals(category)) {
-            if (lenType.equals("500")&&imType.equals("image/jpeg")) {
+            if (imType.equals("image/jpeg")) {
                 pic = parser.getAttributeValue(null, "url");
                 parser.nextTag();
             }
         }
+        parser.require(XmlPullParser.END_TAG, ns, category);
         return pic;
     }
 
