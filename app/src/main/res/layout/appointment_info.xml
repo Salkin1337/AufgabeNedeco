@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.nedeco.aufgabe.aufgabenedeco.appointmentInfo">
+    tools:context="de.nedeco.aufgabe.aufgabenedeco.AppointmentInfoActivity">
 
 
     <ScrollView
@@ -15,6 +15,21 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/pictureView"
+                android:layout_marginStart="6sp"
+                android:includeFontPadding="false"
+                android:text=""
+                android:textSize="24sp"
+                android:textStyle="bold"
+                tools:ignore="MissingConstraints"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
 
             <ImageView
                 android:id="@+id/pictureView"
@@ -28,21 +43,23 @@
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="0dp" />
 
-            <TextView
-                android:id="@+id/link"
+            <WebView
+                android:id="@+id/content"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/date"
-                android:autoLink="web"
-                android:text=""
+                android:layout_below="@+id/title"
+                android:layout_marginTop="0dp"
+                android:clickable="false"
                 android:textStyle="bold"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp" />
+                tools:layout_editor_absoluteY="0dp">
+
+            </WebView>
 
             <TextView
-                android:id="@+id/date"
+                android:id="@+id/pubDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
@@ -52,21 +69,21 @@
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="0dp" />
 
-            <WebView
-                android:id="@+id/content"
+            <TextView
+                android:id="@+id/link"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/pictureView"
-                android:layout_marginTop="0dp"
-                android:clickable="false"
+                android:layout_below="@+id/pubDate"
+                android:autoLink="web"
+                android:text=""
                 android:textStyle="bold"
                 tools:ignore="MissingConstraints"
                 tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp">
+                tools:layout_editor_absoluteY="0dp" />
 
-            </WebView>
         </RelativeLayout>
+
     </ScrollView>
 
 </RelativeLayout>
